@@ -38,7 +38,7 @@ function TextReview() {
       init: false,
       justWord: wordList[i]
         .toLowerCase()
-        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'\n]/g, ""),
+        .replace(/[\n.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""),
     };
   }
 
@@ -58,50 +58,117 @@ function TextReview() {
     return Array.from({ length }, (_, i) => start + step * i);
   }
 
-  function getIndexes(searchWord, matchingIndexes) {
+  function getNewIndexes(searchWord, matchingIndexes) {
     let indexes = [];
-    if (matchingIndexes.length > 0) {
-      for (let i in matchingIndexes) {
-        let nextWord = matchingIndexes[i];
-        nextWord[1]++;
-        const tempObject = matchData[nextWord[0]];
-        if (Object.keys(tempObject).includes(String(nextWord[1]))) {
-          //we save the words in these variables and remove punctuation in the process
-          const documentWord = matchData[nextWord[0]][nextWord[1]].justWord;
-          if (documentWord == searchWord) {
-            indexes.push(nextWord);
-          } /* else { 
-            console.log(documentWord, searchWord);
-          } */
-          //moves to next paragraph if this one doesn't contain
-        } else {
-          nextWord[0]++;
-          i--;
-        }
-      }
-    } else {
-      for (let p in matchData) {
-        for (let i in matchData[p])
-          if (matchData[p][i].justWord === searchWord) {
-            indexes.push([p, i]);
-          }
-      }
-    }
-    if (indexes.length > 0) {
-      matchStreak++;
-      missStreak = 0;
-    } else {
-      matchStreak = 0;
-      missStreak++;
-      if (sliderData.wordSkip > missStreak) {
-        indexes = matchingIndexes.map((v) => v + 1);
+    for (let i in matchingIndexes) {
+      let nextWord = matchingIndexes[i];
+      nextWord[1]++;
+      const tempObject = matchData[nextWord[0]];
+      if (Object.keys(tempObject).includes(String(nextWord[1]))) {
+        const documentWord = matchData[nextWord[0]][nextWord[1]].justWord;
+        if (documentWord == searchWord) {
+          indexes.push(nextWord);
+        } /* else { 
+          console.log(documentWord, searchWord);
+        } */
+      } else {
+        nextWord[0]++;
+        i--;
       }
     }
     return indexes;
   }
 
-  let matchingIndexesList = [];
+  function getNextIndexes(searchWord) {
+    let indexes = [];
+    for (let p in matchData) {
+      for (let i in matchData[p])
+        if (matchData[p][i].justWord === searchWord) {
+          indexes.push([p, i]);
+        }
+    }
+    return indexes;
+  }
 
+  function wordSkipIndexes(matchingIndexes) {
+    let indexes = [];
+    if (sliderData.wordSkip > missStreak) {
+      for (let i in matchingIndexes) {
+        for (let p in matchData) {
+          if (matchingIndexes[i][1] + 1 in matchData[p])
+            indexes.push([p, matchingIndexes[i][1] + 1]);
+        }
+      }
+      console.log(matchingIndexes, indexes);
+    }
+
+    return indexes;
+  }
+
+  function getIndexes(searchWord, matchingIndexes) {
+    let indexes = [];
+    console.log();
+    if (matchingIndexes.length > 0 && searchWord !== "") {
+      indexes = getNewIndexes(searchWord, matchingIndexes);
+    } else {
+      indexes = getNextIndexes(searchWord);
+    }
+    if (indexes.length > 0) {
+      matchStreak++;
+      missStreak = 0;
+    } else {
+      indexes = wordSkipIndexes(matchingIndexes);
+      matchStreak = 0;
+      missStreak++;
+    }
+    return indexes;
+  }
+
+  const retroFitter = () => {
+    //adds matches that were found before minimum match length
+    const matchDataTemp = { ...matchData };
+    let oldMatches = [];
+    let oldTimes = [];
+    let matchesCopy = [];
+    let timesCopy = [];
+    let count = 0;
+    //cycles through paragraphs
+    for (let p = Object.keys(matchDataTemp).length - 1; p >= 0; p--) {
+      if (Object.keys(matchDataTemp[p]).length > 1) {
+        console.log(matchDataTemp[p]);
+        for (let i = Object.keys(matchDataTemp[p]).length - 1; i >= 0; i--) {
+          //prevents "undefined" errors
+          const key = Object.keys(matchDataTemp[p])[i];
+          if (
+            oldMatches.length > 0 &&
+            matchDataTemp[p][key].matches.length == 0
+          ) {
+            matchesCopy = oldMatches;
+            timesCopy = oldTimes;
+            count = sliderData.minLength;
+            //matchDataTemp[p][i].init = true;
+          }
+
+          oldMatches = [...matchDataTemp[p][key].matches];
+          oldTimes = [...matchDataTemp[p][key].times];
+
+          if (count > 0) {
+            matchDataTemp[p][key].matches = [
+              ...matchDataTemp[p][key].matches,
+              ...matchesCopy,
+            ];
+            matchDataTemp[p][key].times.push(...timesCopy);
+            console.log(matchDataTemp[p][key].times);
+            count--;
+          }
+        }
+      }
+    }
+
+    setMatchData(matchDataTemp);
+  };
+
+  let matchingIndexesList = [];
   const wordZipper = (transcriptSearchObject) => {
     //console.log(transcriptSearchObject.text);
     for (let i in transcriptSearchObject.text) {
@@ -130,32 +197,12 @@ function TextReview() {
             transcriptSearchObject.times[i],
           ];
 
-          //adds matches that were found before minimum match length
-          const oldVal = [];
-          const copy = [];
-          const count = 0;
-
-          for (let p = matchData.length - 1; p >= 0; p--) {
-            for (let i = matchData[p].length - 1; i >= 0; i--) {
-              if (count > 0) {
-                matchData[p][i].matchAmount = copy;
-                count--;
-              }
-              if (
-                (oldVal.length > 1) &
-                (matchData[p][i].matches.length === 0)
-              ) {
-                copy = oldVal;
-                count = sliderData.minLength;
-                matchData[p][i].init = true;
-              }
-            }
-          }
-
           setMatchData(matchDataTemp);
         }
       }
     }
+
+    retroFitter();
   };
 
   //Formats the data for each transcript into a word/time in video object
@@ -221,7 +268,8 @@ function TextReview() {
 
   const tooltipRenderer = (matchObject) => {
     let matchString = "";
-    for (let i in matchObject.matches) {
+    for (let i in matchObject.times) {
+      matchObject.times[i];
       const timeMinutes = new Date(matchObject.times[i] * 1000)
         .toISOString()
         .slice(11, 19);
