@@ -58,6 +58,18 @@ function TextReview() {
     return Array.from({ length }, (_, i) => start + step * i);
   }
 
+  function delay(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
+
+  function updateStatus(index, statusNumber) {
+    let tempFiles = files;
+    if (index !== "length") {
+      tempFiles[index].fileStatus = statusNumber;
+    }
+    setFiles(tempFiles);
+  }
+
   function getNewIndexes(searchWord, matchingIndexes) {
     let indexes = [];
     for (let i in matchingIndexes) {
@@ -135,7 +147,6 @@ function TextReview() {
     //cycles through paragraphs
     for (let p = Object.keys(matchDataTemp).length - 1; p >= 0; p--) {
       if (Object.keys(matchDataTemp[p]).length > 1) {
-        console.log(matchDataTemp[p]);
         for (let i = Object.keys(matchDataTemp[p]).length - 1; i >= 0; i--) {
           //prevents "undefined" errors
           const key = Object.keys(matchDataTemp[p])[i];
@@ -158,7 +169,6 @@ function TextReview() {
               ...matchesCopy,
             ];
             matchDataTemp[p][key].times.push(...timesCopy);
-            console.log(matchDataTemp[p][key].times);
             count--;
           }
         }
@@ -172,6 +182,7 @@ function TextReview() {
   const wordZipper = (transcriptSearchObject) => {
     //console.log(transcriptSearchObject.text);
     for (let i in transcriptSearchObject.text) {
+      delay(500);
       matchingIndexesList = getIndexes(
         transcriptSearchObject.text[i],
         matchingIndexesList
@@ -233,6 +244,8 @@ function TextReview() {
       }
       wordZipper(transcriptSearchObject);
     }
+
+    updateStatus(transcriptIndex, 4);
     setTranscriptIndex(transcriptIndex + 1);
   };
 
@@ -240,15 +253,23 @@ function TextReview() {
   useEffect(() => {
     if (transcript.length > transcriptIndex) {
       searchObjectDelivery();
+    } else if (transcript.length > 0 && transcriptIndex < files.length - 1) {
+      updateStatus(transcriptIndex, 4);
     }
   }, [transcript, transcriptIndex]);
 
   useEffect(() => {
+    if (transcriptIndex > 0) {
+      for (let i = 0; i < files.length - 1; i++) {
+        files[i].fileStatus = 3;
+      }
+    }
     for (let p in matchData) {
       for (let i in matchData[p]) {
         matchData[p][i].matches = [];
       }
     }
+
     setTranscriptIndex(0);
   }, [sliderData]);
 
@@ -269,12 +290,14 @@ function TextReview() {
   const tooltipRenderer = (matchObject) => {
     let matchString = "";
     for (let i in matchObject.times) {
-      matchObject.times[i];
-      const timeMinutes = new Date(matchObject.times[i] * 1000)
-        .toISOString()
-        .slice(11, 19);
-      const string = String(matchObject.matches[i]) + " " + timeMinutes + "\n";
-      matchString = matchString + string;
+      if (!isNaN(matchObject.times[i])) {
+        const timeMinutes = new Date(matchObject.times[i] * 1000)
+          .toISOString()
+          .slice(11, 19);
+        const string =
+          String(matchObject.matches[i]) + " " + timeMinutes + "\n";
+        matchString = matchString + string;
+      }
     }
     return matchString;
   };

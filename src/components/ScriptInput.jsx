@@ -5,7 +5,6 @@ function Input() {
   const [script, setScript] = useContext(ScriptContext);
 
   const saveText = (event) => {
-    console.log("Script text updated");
     setScript(event.target.value);
   };
 

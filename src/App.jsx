@@ -14,7 +14,7 @@ export const SliderContext = createContext();
 
 function App() {
   const [clicked, setClicked] = useState(false);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState({});
   const [transcript, setTranscript] = useState([]);
   const [sliderData, setSliderData] = useState({
     minLength: 3,
