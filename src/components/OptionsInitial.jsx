@@ -34,10 +34,17 @@ function OptionsInitial() {
     load();
   }, []);
 
+  function updateStatus(index, statusNumber) {
+    let tempFiles = files;
+    if (index !== "length") {
+      tempFiles[index].fileStatus = statusNumber;
+    }
+    setFiles(tempFiles);
+  }
+
   //mp4 > mp3 converter
   const blinder = async (video_file) => {
     const file_name = video_file.name.replace(".mp4", "");
-    console.log("Making mp3 for:", file_name);
     //Write audio file to memory
     ffmpeg.FS("writeFile", `${file_name}.mp4`, await fetchFile(video_file));
 
@@ -53,17 +60,22 @@ function OptionsInitial() {
   //Sends mp3 to python, saves result in "transcripts"
   const fetchTranscript = async (formData) => {
     for (let i = 0; i < formData.length; i++) {
-      console.log("making transcript for", formData);
+      updateStatus(i, 2);
+      await delay(1500);
       await fetch("http://localhost:8000/transcript", {
         method: "POST",
         data: "form_data",
         body: formData[i],
       })
         .then((res) => res.json())
-        .then((data) => addTranscript(data));
-      console.log("transcript complete");
+        .then((data) => addTranscript(data))
+        .then(updateStatus(i, 3));
     }
   };
+
+  function delay(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
 
   const Usher = async () => {
     //only runs if there are files loaded
@@ -71,10 +83,13 @@ function OptionsInitial() {
     if (files.length > 0) {
       setClicked(true);
       for (let i = 0; i < files.length; i++) {
+        updateStatus(i, 0);
+        await delay(1500);
         const mp3_file = await blinder(files.item(i));
         const form = new FormData();
         form.append("audio", mp3_file[1], mp3_file[0]);
         mp3_temp.push(form);
+        updateStatus(i, 1);
       }
       fetchTranscript(mp3_temp);
     }

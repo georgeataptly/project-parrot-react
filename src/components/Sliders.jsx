@@ -18,8 +18,9 @@ function Sliders() {
 
   return (
     <React.Fragment>
+      <h1 className="text-xl font-bold">Search parameters</h1>
       <div>
-        <p>Minimum match length</p>
+        <p className="text-sm pb-1">Min valid match length</p>
         <input
           name="minLength"
           type="range"
@@ -39,7 +40,7 @@ function Sliders() {
         </div>
       </div>
       <div>
-        <p>Missed word tollerance</p>
+        <p className="text-sm pb-1">Missed word tollerance</p>
         <input
           name="wordSkip"
           type="range"
@@ -59,7 +60,7 @@ function Sliders() {
         </div>
       </div>
       <div>
-        <p>Word shuffle</p>
+        <p className="text-sm pb-1">Word shuffle</p>
         <input
           name="wordShuffle"
           type="range"
