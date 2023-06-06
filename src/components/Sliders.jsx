@@ -1,20 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
-import { SliderContext, FilesContext } from "../App";
+import { useStore } from "zustand";
+import { basicStore } from "../store/basic-store";
 
 function Sliders() {
-  const [sliderData, setSliderData] = useContext(SliderContext);
+  const { minLength, wordSkip, wordShuffle, setLength, setSkip, setShuffle } =
+    useStore(basicStore);
 
-  const [files, setFiles] = useContext(FilesContext);
+  const LengthUpdate = (event) => setLength(event.target.value);
 
-  const SliderUpdate = (event) => {
-    const value = event.target.value;
-    const name = event.target.name;
-    console.log([value, name]);
-    setSliderData({
-      ...sliderData,
-      [name]: value,
-    });
-  };
+  const SkipUpdate = (event) => setSkip(event.target.value);
+
+  const ShuffleUpdate = (event) => setShuffle(event.target.value);
 
   return (
     <React.Fragment>
@@ -26,10 +22,10 @@ function Sliders() {
           type="range"
           min="3"
           max="7"
-          defaultValue={sliderData.minLength}
-          className="range range-info"
+          defaultValue={minLength}
+          className="range"
           step="1"
-          onChange={SliderUpdate}
+          onChange={LengthUpdate}
         />
         <div className="flex justify-between text-xs px-2">
           <span>3</span>
@@ -46,10 +42,10 @@ function Sliders() {
           type="range"
           min="0"
           max="4"
-          defaultValue={sliderData.wordSkip}
-          className="range range-info"
+          defaultValue={wordSkip}
+          className="range"
           step="1"
-          onChange={SliderUpdate}
+          onChange={SkipUpdate}
         />
         <div className="flex justify-between text-xs px-2">
           <span>0</span>
@@ -59,6 +55,7 @@ function Sliders() {
           <span>4</span>
         </div>
       </div>
+      {/* 
       <div>
         <p className="text-sm pb-1">Word shuffle</p>
         <input
@@ -66,17 +63,17 @@ function Sliders() {
           type="range"
           min="0"
           max="2"
-          defaultValue={sliderData.wordShuffle}
-          className="range range-info"
+          defaultValue={wordShuffle}
+          className="range"
           step="1"
-          onChange={SliderUpdate}
+          onChange={ShuffleUpdate}
         />
         <div className="flex justify-between text-xs px-2">
           <span>0</span>
           <span>1</span>
           <span>2</span>
         </div>
-      </div>
+  </div> */}
     </React.Fragment>
   );
 }
