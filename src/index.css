@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'DM Sans',Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
@@ -27,7 +28,6 @@ body {
   top: 0px;
   left: 0px;
   width: 100%;
-  height: 50px;
   justify-items: left;
   text-justify: left;
   display: flex;
@@ -51,4 +51,18 @@ body {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   overflow: hidden;
+}
+
+.textarea {
+  background-image: url(/grain.png);
+  background-size: 130px;
+  background-blend-mode: multiply;
+  background-color: white;
+  background-attachment: local;
+  box-shadow: -50px 0px 30px -30px #0000000e inset;
+}
+
+.match-item {
+  background-image: url(/grain.png);
+  background-size: 130px;
 }

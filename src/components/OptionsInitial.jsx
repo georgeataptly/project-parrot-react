@@ -1,27 +1,28 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
-import { StartContext, TranscriptContext, FilesContext } from "../App";
 import Sliders from "./Sliders";
 import FileInput from "./FileInput";
+import { useStore } from "zustand";
+import { basicStore } from "../store/basic-store";
+import { dataStore } from "../store/data-store";
 
 //FFmpeg variable
 const ffmpeg = createFFmpeg({ log: false });
 
 function OptionsInitial() {
   //click StartContext used to switch UI after data submission
-  const [clicked, setClicked] = useContext(StartContext);
-  const [transcript, setTranscripts] = useContext(TranscriptContext);
+  const { setClick } = useStore(basicStore);
 
-  const addTranscript = (transcript_data) => {
-    setTranscripts((transcript) => [...transcript, transcript_data]);
-  };
-
-  const [files, setFiles] = useContext(FilesContext);
+  const { files, addTranscript, updateStatus } = useStore(dataStore);
 
   //Audio list
 
   //Checks if FFMPEG is ready
   const [ready, setReady] = useState(false);
+
+  function delay(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
 
   const load = async () => {
     //loads ffmpeg
@@ -33,14 +34,6 @@ function OptionsInitial() {
     //loads ffmpeg
     load();
   }, []);
-
-  function updateStatus(index, statusNumber) {
-    let tempFiles = files;
-    if (index !== "length") {
-      tempFiles[index].fileStatus = statusNumber;
-    }
-    setFiles(tempFiles);
-  }
 
   //mp4 > mp3 converter
   const blinder = async (video_file) => {
@@ -58,51 +51,43 @@ function OptionsInitial() {
   };
 
   //Sends mp3 to python, saves result in "transcripts"
-  const fetchTranscript = async (formData) => {
-    for (let i = 0; i < formData.length; i++) {
-      updateStatus(i, 2);
-      await delay(1500);
-      await fetch("http://localhost:8000/transcript", {
-        method: "POST",
-        data: "form_data",
-        body: formData[i],
-      })
-        .then((res) => res.json())
-        .then((data) => addTranscript(data))
-        .then(updateStatus(i, 3));
-    }
+  const fetchTranscript = async (formData, i) => {
+    updateStatus(i, 2);
+    await fetch("http://localhost:8000/transcript", {
+      method: "POST",
+      data: "form_data",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => addTranscript(data));
   };
-
-  function delay(time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-  }
 
   const Usher = async () => {
     //only runs if there are files loaded
-    const mp3_temp = [];
     if (files.length > 0) {
-      setClicked(true);
+      setClick(true);
       for (let i = 0; i < files.length; i++) {
         updateStatus(i, 0);
-        await delay(1500);
+        if (i > 0) {
+          await delay(15000);
+        }
         const mp3_file = await blinder(files.item(i));
         const form = new FormData();
         form.append("audio", mp3_file[1], mp3_file[0]);
-        mp3_temp.push(form);
         updateStatus(i, 1);
+        fetchTranscript(form, i);
       }
-      fetchTranscript(mp3_temp);
     }
   };
 
   return (
     <React.Fragment>
-      <div className="flex flex-col gap-4 w-1/4 min-w-sm">
+      <div className="flex flex-col px-10 pb-8 pt-16 lg:pb-16 gap-4 lg:pt-32 lg:w-1/4">
         <Sliders></Sliders>
         <FileInput></FileInput>
         {ready ? (
           <button
-            className="btn w-32 btn-success mt-auto ml-auto"
+            className="btn w-32 mt-auto ml-auto btn-circle btn-success"
             onClick={Usher}
           >
             Start

@@ -1,21 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
-import { FilesContext } from "../App";
+import React, { useState, useEffect } from "react";
+import { dataStore } from "../store/data-store";
+import { useStore } from "zustand";
 
 function FileReview() {
   //Video file list
-  const [files, setFiles] = useContext(FilesContext);
-
-  //Video url list
-  const [urls, setURLs] = useState([]);
-
-  //gets URLs for local files when file objects are available
-  useEffect(() => {
-    const location_list = [];
-    for (let i = 0; i < files.length; i++) {
-      location_list.push(URL.createObjectURL(files.item(i)));
-    }
-    setURLs(location_list);
-  }, [files]);
+  const { files, urls } = useStore(dataStore);
 
   function getStatus(index) {
     const returnList = [
@@ -24,19 +13,16 @@ function FileReview() {
       "Fetching transcript",
       "Searching document",
       "Searched ✔️",
-      "Standby...",
     ];
-    let returnString = "";
-    let value = 0;
 
     let progress;
 
     if (typeof files[index].fileStatus !== "undefined") {
-      value = files[index].fileStatus;
+      let value = files[index].fileStatus;
       progress = (
         <p>
           <progress
-            className="progress w-8 mr-2"
+            className="progress w-8 mr-2 progress-secondary"
             value={value}
             max="4"
           ></progress>
@@ -52,20 +38,17 @@ function FileReview() {
 
   return (
     <React.Fragment>
-      <h1 className="text-xl font-bold">Video files</h1>
-      <div className="grid grid-cols-1 gap-3 w-full scrollbar-hide">
+      <h1 className="text-xl font-bold">Files</h1>
+      <div className="flex-row w-full h-full overflow-y-auto align-start">
         {urls.map((url, index) => {
           return (
-            <div key={index} className="flex flex-row gap-3">
-              <div className="overflow-hidden flex-grow-0 flex-shrink-0 w-11 h-fit rounded h-16 my-auto">
-                <video>
+            <div key={index} className="flex flex-row gap-3 mb-5 h-fit">
+              <div className="overflow-hidden flex-grow-1 w-1/6 rounded h-fit my-auto">
+                <video className="w-full">
                   <source src={url} type="video/mp4"></source>
                 </video>
               </div>
-              <div
-                className="flex-shrink tooltip tooltip-left text-left text-sm"
-                data-tip={files[index].name}
-              >
+              <div className="flex-shrink text-left w-5/6 text-sm">
                 <p className="line-clamp-1-fix h-6 max-w-full overflow-hidden font-semibold">
                   {files[index].name}
                 </p>
