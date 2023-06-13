@@ -14,7 +14,7 @@ function Sliders() {
 
   return (
     <React.Fragment>
-      <h1 className="text-xl font-bold">Search parameters</h1>
+      <h1 className="text-xl font-bold">Parameters</h1>
       <div>
         <p className="text-sm pb-1">Min valid match length</p>
         <input
@@ -23,7 +23,7 @@ function Sliders() {
           min="3"
           max="7"
           defaultValue={minLength}
-          className="range"
+          className="range range-xs"
           step="1"
           onChange={LengthUpdate}
         />
@@ -43,7 +43,7 @@ function Sliders() {
           min="0"
           max="4"
           defaultValue={wordSkip}
-          className="range"
+          className="range range-xs"
           step="1"
           onChange={SkipUpdate}
         />

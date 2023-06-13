@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { dataStore } from "../store/data-store";
 import { useStore } from "zustand";
+import { basicStore } from "../store/basic-store";
 
 function FileReview() {
   //Video file list
   const { files, urls } = useStore(dataStore);
+  const { statusText } = useStore(basicStore);
 
   function getStatus(index) {
-    const returnList = [
-      "Creating mp3...",
-      "Ready to fetch transcript",
-      "Fetching transcript",
-      "Searching document",
-      "Searched ✔️",
-    ];
-
     let progress;
 
     if (typeof files[index].fileStatus !== "undefined") {
@@ -26,7 +20,7 @@ function FileReview() {
             value={value}
             max="4"
           ></progress>
-          {returnList[value]}
+          {statusText[value]}
         </p>
       );
     } else {
@@ -52,7 +46,7 @@ function FileReview() {
                 <p className="line-clamp-1-fix h-6 max-w-full overflow-hidden font-semibold">
                   {files[index].name}
                 </p>
-                {getStatus(index)}
+                {statusText[files[index].fileStatus]}
               </div>
             </div>
           );

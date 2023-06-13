@@ -23,18 +23,6 @@ body {
   height: 100vh;
 }
 
-.PageTop {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  justify-items: left;
-  text-justify: left;
-  display: flex;
-  align-items: center;
-  padding-left: 30px;
-}
-
 /* For Webkit-based browsers (Chrome, Safari and Opera) */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

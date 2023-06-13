@@ -1,5 +1,4 @@
 import "./App.css";
-import PageHeader from "./components/PageHeader";
 import ScriptInput from "./components/ScriptInput";
 import OptionsInitial from "./components/OptionsInitial";
 import OptionsFinal from "./components/OptionsFinal";
@@ -12,8 +11,7 @@ function App() {
 
   return (
     <div className="App">
-      <PageHeader></PageHeader>
-      <div className=" bg-zinc-200 flex h-screen w-screen align-middle pt-16 flex-col lg:flex-row lg:py-0">
+      <div className=" bg-zinc-100 flex h-screen w-screen align-middle pt-16 flex-col lg:flex-row lg:py-0">
         {clicked ? (
           <>
             <LeftReview></LeftReview>

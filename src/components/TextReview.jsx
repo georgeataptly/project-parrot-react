@@ -6,7 +6,6 @@ import { dataStore } from "../store/data-store";
 function TextReview() {
   const {
     files,
-    transcript,
     script,
     updateStatus,
     initMatchData,
@@ -56,7 +55,7 @@ function TextReview() {
     return nextPointers;
   };
 
-  const writeMatchData = (pointers, time, second, matchStreak) => {
+  const writeMatchData = (pointers, time, second, matchStreak, file) => {
     let matchDataTemp = matchData;
     let pointerList = pointers;
 
@@ -79,11 +78,11 @@ function TextReview() {
     for (let pointer in pointerList) {
       let [p, i] = sSearchObjects[pointerList[pointer]].pointer;
       let word = sSearchObjects[pointerList[pointer]].word;
-      let filename = files[transcriptIndex].name;
+      let filename = files[file].name;
       matchData[p][i].matches.push(filename);
       matchData[p][i].times.push(time);
       matchData[p][i].matchedWords.push(word);
-      matchData[p][i].videoLocations.push(transcriptIndex);
+      matchData[p][i].videoLocations.push(file);
       matchData[p][i].seconds.push(second);
     }
 
@@ -113,7 +112,8 @@ function TextReview() {
             pointers,
             transcriptSearchObject.times[i],
             transcriptSearchObject.seconds[i],
-            matchStreak
+            matchStreak,
+            transcriptSearchObject.file
           );
         }
 
@@ -130,7 +130,8 @@ function TextReview() {
             pointers,
             transcriptSearchObject.times[i],
             transcriptSearchObject.seconds[i],
-            matchStreak
+            matchStreak,
+            transcriptSearchObject.file
           );
         }
       }
@@ -153,13 +154,13 @@ function TextReview() {
 
   //Calls searchObjectDelivery when there are pending searches
   useEffect(() => {
-    if (transcript.length > transcriptIndex) {
-      updateStatus(transcript.length - 1, 3);
+    if (tSearchObjects.length > transcriptIndex) {
+      updateStatus(tSearchObjects.length - 1, 3);
       delay(100);
       searchObjectDelivery();
     } else {
-      if (transcript.length > 0 && transcriptIndex == files.length - 1) {
-        updateStatus(transcript.length - 1, 4);
+      if (tSearchObjects.length > 0 && transcriptIndex == files.length - 1) {
+        updateStatus(tSearchObjects.length - 1, 4);
       }
     }
   }, [tSearchObjects, transcriptIndex]);

@@ -1,6 +1,5 @@
 import whisper
 import os
-import numpy as np
 import tempfile
 from flask import Flask, request
 from flask_cors import CORS

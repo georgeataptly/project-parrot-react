@@ -52,6 +52,7 @@ function OptionsInitial() {
 
   //Sends mp3 to python, saves result in "transcripts"
   const fetchTranscript = async (formData, i) => {
+    const currentIndex = i;
     updateStatus(i, 2);
     await fetch("http://localhost:8000/transcript", {
       method: "POST",
@@ -59,7 +60,7 @@ function OptionsInitial() {
       body: formData,
     })
       .then((res) => res.json())
-      .then((data) => addTranscript(data));
+      .then((data) => addTranscript([data, currentIndex]));
   };
 
   const Usher = async () => {
@@ -82,19 +83,24 @@ function OptionsInitial() {
 
   return (
     <React.Fragment>
-      <div className="flex flex-col px-10 pb-8 pt-16 lg:pb-16 gap-4 lg:pt-32 lg:w-1/4">
-        <Sliders></Sliders>
-        <FileInput></FileInput>
-        {ready ? (
-          <button
-            className="btn w-32 mt-auto ml-auto btn-circle btn-success"
-            onClick={Usher}
-          >
-            Start
-          </button>
-        ) : (
-          <p className="mt-auto ml-auto">Transcoder offline...</p>
-        )}
+      <div className="lg:w-1/4">
+        <div className="flex items-center pl-8 h-16  bg-zinc-100">
+          <h1 className="text-2xl font-bold">Search</h1>
+        </div>
+        <div className="flex flex-col px-10 pb-8 pt-16 lg:pb-16 gap-4 lg:pt-8">
+          <Sliders></Sliders>
+          <FileInput></FileInput>
+          {ready ? (
+            <button
+              className="btn w-32 mt-auto ml-auto btn-circle btn-accent"
+              onClick={Usher}
+            >
+              Start
+            </button>
+          ) : (
+            <p className="mt-auto ml-auto">Transcoder offline...</p>
+          )}
+        </div>
       </div>
     </React.Fragment>
   );

@@ -1,4 +1,5 @@
-import React, { useState, useContext, useEffect } from "react";
+import React from "react";
+import PageHeader from "./PageHeader.jsx";
 import { useStore } from "zustand";
 import { dataStore } from "../store/data-store";
 
@@ -12,6 +13,7 @@ function Input() {
 
   return (
     <React.Fragment>
+      <PageHeader></PageHeader>
       <div className="flex flex-col w-full lg:h-auto min-h-96">
         <textarea
           placeholder="Paste your script here"
